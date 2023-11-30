@@ -1,7 +1,7 @@
+import java.lang.Math;
 public class BST<K extends Comparable<K>, V> {
 	public static int nodeCount = 0;// do not get rid of this!
 	Node root;
-	int hlvl;
 
 	/* CONSTRUCTOR */
 	public BST() {
@@ -23,7 +23,7 @@ public class BST<K extends Comparable<K>, V> {
 			return;
 		} Node tleft = root.left();
 		  Node tright = root.right();
-			root = putHelp(root, newNode, tright, tleft);
+			root = putHelp(root, newNode);
 		if (tleft == null&&tright!=null) {
 			root.height = tright.height + 1;
 		} else if (tright == null && tleft!=null) {
@@ -31,25 +31,27 @@ public class BST<K extends Comparable<K>, V> {
 		}
 	}
 
-	private Node putHelp(Node rt, Node comp, Node tempR, Node tempL) {
+	private Node putHelp(Node rt, Node comp) {
+        Node tempR = rt.right;
+        Node tempL = rt.left;
 		if (comp.key.compareTo(rt.key) > 0) {
 			if (tempR == null) {
 				comp.height = 0;
 				rt.right(comp);
 			} else {
-				putHelp(rt.right(), comp, rt.right(), rt.left());
+				putHelp(tempR, comp);
 			}
 		} else if (comp.key.compareTo(rt.key) < 0) {
 			if (tempL == null) {
-				comp.height = hlvl + 1;
+				comp.height = 0;
 				rt.left(comp);
 			} else {
-				putHelp(rt.left(), comp, rt.right(), rt.left());
+				putHelp(tempL, comp);
 			}
 		} else if (rt.key.compareTo(comp.key) == 0) {
 			rt.val = comp.val;
 		}
-		rt.height+=comp.height+1;
+		rt.height=Math.max(rt.left.height, rt.right.height)+1;
 		return rt;
 	}
 
@@ -141,9 +143,22 @@ public class BST<K extends Comparable<K>, V> {
 	 * key does not exist in the tree
 	 ***/
 	public int depth(K key) {
-		// to be implemented
-		return 0;
+        int depthcount = 0;
+        Node compaNode = new Node(key, null);
+		return depthHelp(compaNode, depthcount);
+		
 	}
+
+    private int depthHelp(Node key, int depthCount){        
+        if(root.key!=null&&root.key.compareTo(key.key)>0){
+            depthHelp(root.right, depthCount+1);
+        }if(root.key!=null&&root.key.compareTo(key.key)<0){
+            depthHelp(root.left, depthCount+1);
+        }if(root.key!=null&&root.key.compareTo(key.key)==0){
+            return depthCount;
+        }
+        return -1;
+    }
 
 	/***
 	 * return the size of the subtree rooted at the node with the given key return
