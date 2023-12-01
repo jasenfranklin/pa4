@@ -1,4 +1,5 @@
 import java.lang.Math;
+
 public class BST<K extends Comparable<K>, V> {
 	public static int nodeCount = 0;// do not get rid of this!
 	Node root;
@@ -21,23 +22,18 @@ public class BST<K extends Comparable<K>, V> {
 			root = newNode;
 			root.height = 0;
 			return;
-		} Node tleft = root.left();
-		  Node tright = root.right();
-			root = putHelp(root, newNode);
-		if (tleft == null&&tright!=null) {
-			root.height = tright.height + 1;
-		} else if (tright == null && tleft!=null) {
-			root.height = tleft.height + 1;
 		}
+		root = putHelp(root, newNode);
 	}
 
 	private Node putHelp(Node rt, Node comp) {
-        Node tempR = rt.right;
-        Node tempL = rt.left;
+		Node tempR = rt.right();
+		Node tempL = rt.left();
 		if (comp.key.compareTo(rt.key) > 0) {
 			if (tempR == null) {
 				comp.height = 0;
 				rt.right(comp);
+				tempR = comp;
 			} else {
 				putHelp(tempR, comp);
 			}
@@ -45,13 +41,26 @@ public class BST<K extends Comparable<K>, V> {
 			if (tempL == null) {
 				comp.height = 0;
 				rt.left(comp);
+				tempL = comp;
 			} else {
 				putHelp(tempL, comp);
 			}
 		} else if (rt.key.compareTo(comp.key) == 0) {
 			rt.val = comp.val;
 		}
-		rt.height=Math.max(rt.left.height, rt.right.height)+1;
+		if (tempR != null && tempL != null) {
+			rt.height = Math.max(tempL.height, tempR.height) + 1;
+			rt.N++;
+			return rt;
+		} else if (tempL != null) {
+			rt.height = tempL.height + 1;
+			rt.N++;
+			return rt;
+		} else if (tempR != null) {
+			rt.height = tempR.height + 1;
+			rt.N++;
+			return rt;
+		}
 		return rt;
 	}
 
@@ -62,26 +71,27 @@ public class BST<K extends Comparable<K>, V> {
 		if (root.key == null) {
 			return null;
 		}
-		if (key.compareTo(root.key) > 0) {
-			return getHelp(root.right(), key).val;
+		Node retVal = getHelp(root, key);
+		if (retVal == null) {
+			return null;
 		}
-		if (key.compareTo(root.key) < 0) {
-			return getHelp(root.left(), key).val;
-		}
-		return root.val;
+		return retVal.val;
 	}
 
 	/***
 	 * assists get with returning a key
 	 */
 	private Node getHelp(Node rt, K key) {
+		if (rt == null) {
+			return null;
+		}
 		if (key.compareTo(rt.key) == 0) {
 			return rt;
 		}
 		if (key.compareTo(rt.key) > 0) {
-			getHelp(rt.right(), key);
+			return getHelp(rt.right(), key);
 		} else if (key.compareTo(rt.key) < 0) {
-			getHelp(rt.left(), key);
+			return getHelp(rt.left(), key);
 		}
 		return null;
 	}
@@ -143,29 +153,31 @@ public class BST<K extends Comparable<K>, V> {
 	 * key does not exist in the tree
 	 ***/
 	public int depth(K key) {
-        int depthcount = 0;
-        Node compaNode = new Node(key, null);
+		int depthcount = 0;
+		Node compaNode = new Node(key, null);
 		return depthHelp(compaNode, depthcount);
-		
+
 	}
 
-    private int depthHelp(Node key, int depthCount){        
-        if(root.key!=null&&root.key.compareTo(key.key)>0){
-            depthHelp(root.right, depthCount+1);
-        }if(root.key!=null&&root.key.compareTo(key.key)<0){
-            depthHelp(root.left, depthCount+1);
-        }if(root.key!=null&&root.key.compareTo(key.key)==0){
-            return depthCount;
-        }
-        return -1;
-    }
+	private int depthHelp(Node key, int depthCount) {
+		if (root.key != null && root.key.compareTo(key.key) > 0) {
+			depthHelp(root.right, depthCount + 1);
+		}
+		if (root.key != null && root.key.compareTo(key.key) < 0) {
+			depthHelp(root.left, depthCount + 1);
+		}
+		if (root.key != null && root.key.compareTo(key.key) == 0) {
+			return depthCount;
+		}
+		return -1;
+	}
 
 	/***
 	 * return the size of the subtree rooted at the node with the given key return
 	 * -1 if the key is not in the tree
 	 ***/
 	public int size(K key) {
-		// to be implemented
+		// eturn get(key).N;
 		return 0;
 	}
 
@@ -263,7 +275,7 @@ public class BST<K extends Comparable<K>, V> {
 			this.left = l;
 		}
 
-		// getter for the right child
+		// setter for the right child
 		public void right(Node r) {
 			nodeCount++;
 			this.right = r;
