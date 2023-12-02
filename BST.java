@@ -122,7 +122,10 @@ public class BST<K extends Comparable<K>, V> {
 	 * return the number of Nodes in the tree
 	 */
 	public int size() {
-		return nodeCount;
+		if(root==null) {
+			return 0;
+		}
+		return root.N;
 	}
 
 	/***
