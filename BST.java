@@ -112,7 +112,7 @@ public class BST<K extends Comparable<K>, V> {
 	 * return true if the tree is empty and false otherwise
 	 */
 	public boolean isEmpty() {
-		if (nodeCount == 0) {
+		if (root == null) {
 			return true;
 		}
 		return false;
@@ -122,7 +122,7 @@ public class BST<K extends Comparable<K>, V> {
 	 * return the number of Nodes in the tree
 	 */
 	public int size() {
-		if(root==null) {
+		if (root == null) {
 			return 0;
 		}
 		return root.N;
@@ -132,6 +132,7 @@ public class BST<K extends Comparable<K>, V> {
 	 * returns the height of the tree
 	 */
 	public int height() {
+		System.out.println("height testing====" + root.height);
 		if (isEmpty()) {
 			return -1;
 		} else {
@@ -157,20 +158,21 @@ public class BST<K extends Comparable<K>, V> {
 	 ***/
 	public int depth(K key) {
 		int depthcount = 0;
-		Node compaNode = new Node(key, null);
-		return depthHelp(compaNode, depthcount);
+		return depthHelp(root, key, depthcount);
 
 	}
 
-	private int depthHelp(Node key, int depthCount) {
-		if (root.key != null && root.key.compareTo(key.key) > 0) {
-			depthHelp(root.right, depthCount + 1);
+	private int depthHelp(Node rt, K key, int depthCount) {
+		if (key == null) {
+			return -1;
 		}
-		if (root.key != null && root.key.compareTo(key.key) < 0) {
-			depthHelp(root.left, depthCount + 1);
-		}
-		if (root.key != null && root.key.compareTo(key.key) == 0) {
+		if (key.compareTo(rt.key) == 0) {
 			return depthCount;
+		}
+		if (key.compareTo(rt.key) > 0) {
+			return depthHelp(rt.right(), key, (depthCount + 1));
+		} else if (key.compareTo(rt.key) < 0) {
+			return depthHelp(rt.left(), key, (depthCount + 1));
 		}
 		return -1;
 	}
@@ -180,24 +182,49 @@ public class BST<K extends Comparable<K>, V> {
 	 * -1 if the key is not in the tree
 	 ***/
 	public int size(K key) {
-		// eturn get(key).N;
-		return 0;
+		Node temp = getHelp(root, key);
+		if (temp != null) {
+			return temp.N;
+		}
+		return -1;
 	}
 
 	/***
 	 * return the minimum key or null if the tree is empty
 	 ***/
 	public K min() {
-		// to be implemented
-		return null;
+		if (root == null) {
+			return null;
+		} else {
+			return minHelp(root);
+		}
+	}
+
+	private K minHelp(Node rt) {
+		Node temp = rt.left();
+		if (temp != null) {
+			minHelp(temp);
+		}
+		return rt.key;
 	}
 
 	/***
 	 * return the maximum key or nul if the tree is empty
 	 ***/
 	public K max() {
-		return null;
-		// to be implemented
+		if (root == null) {
+			return null;
+		} else {
+			return maxHelp(root);
+		}
+	}
+
+	private K maxHelp(Node rt) {
+		Node temp = rt.right();
+		if (temp != null) {
+			maxHelp(temp);
+		}
+		return rt.key;
 	}
 
 	/***
@@ -205,8 +232,30 @@ public class BST<K extends Comparable<K>, V> {
 	 * such a key does not exist
 	 ***/
 	public K floor(K key) {
-		// to be implemented
+		Node temp = floorHelp(root, key);
+		if (temp != null) {
+			return temp.key;
+		}
 		return null;
+	}
+
+	private Node floorHelp(Node rt, K key) {
+		Node compL = rt.left();
+		Node compR = rt.right();
+		if (rt.key == key) {
+			return rt;
+		}
+		if (rt.key.compareTo(key) < 0) {
+			if (compR!=null && compR.key.compareTo(key) <= 0) {
+				floorHelp(compR, key);
+			} else {
+				return rt;
+			}
+		}
+		if (compL!=null&&rt.key.compareTo(key) > 0) {
+			floorHelp(compL, key);
+			}
+		return rt;
 	}
 
 	/***
@@ -214,8 +263,30 @@ public class BST<K extends Comparable<K>, V> {
 	 * null if such a key does not exist
 	 ***/
 	public K ceil(K key) {
-		// to be implemented
+		Node temp = ceilHelp(root, key);
+		if (temp != null) {
+			return temp.key;
+		}
 		return null;
+	}
+
+	private Node ceilHelp(Node rt, K key) {
+		Node tempR = rt.right();
+		Node tempL = rt.left();
+		if (rt.key == key) {
+			return rt;
+		}
+		if (rt.key.compareTo(key) < 0) {
+			if (tempL.key.compareTo(key) >= 0) {
+				floorHelp(tempL, key);
+			} else {
+				return rt;
+			}
+		}
+		if (rt.key.compareTo(key) > 0) {
+			floorHelp(tempR, key);
+		}
+		return rt;
 	}
 
 	/***
@@ -223,8 +294,32 @@ public class BST<K extends Comparable<K>, V> {
 	 * does not exist
 	 ***/
 	public int rank(K key) {
-		// to be implemented
-		return -999;
+		int retVal = rankHelp(root, key, 0);
+		return retVal;
+	}
+
+	private int rankHelp(Node rt, K key, int compVal){
+		if(rt==null){
+			return compVal;
+		}
+		Node tempR = rt.right();
+		Node tempL = rt.left();
+		if(key.compareTo(rt.key)<0){
+			if(key.compareTo(tempL.key)<=0){
+				rankHelp( rt, key, compVal);
+			}
+			return compVal+rt.N;
+		}
+		if(key.compareTo(rt.key)>0){
+			if(key.compareTo(tempR.key)>0){
+				rankHelp(tempR, key, compVal);
+			}else if(key.compareTo(tempR.key)<0){
+				if(key.compareTo(tempR.left().key)>0){
+					return tempR.left().N+compVal;
+				}
+			}
+		}
+		return -1;
 	}
 
 	/***
