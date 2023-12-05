@@ -132,7 +132,6 @@ public class BST<K extends Comparable<K>, V> {
 	 * returns the height of the tree
 	 */
 	public int height() {
-		System.out.println("height testing====" + root.height);
 		if (isEmpty()) {
 			return -1;
 		} else {
@@ -205,10 +204,9 @@ public class BST<K extends Comparable<K>, V> {
 		if (temp != null) {
 			return minHelp(temp);
 		}
-		System.out.println(rt.key);
 		if(temp==null) {
 		return rt.key;
-	}
+		}
 		return null;
 	}
 
@@ -251,15 +249,11 @@ public class BST<K extends Comparable<K>, V> {
 			Node compR = rt.right();
 			if (compR!=null && key.compareTo(compR.key) >= 0) {
 				return floorHelp(compR, key);
-			} if(compR!=null) {
-				Node compL2 = compR.left();
-			if(compL2!=null) {
-			if(key.compareTo(compL2.key)<0){
-				return compL2;
+			}
+			else{
+				return rt;
 			}
 			}
-			}
-		}
 		Node compL = rt.left();
 		if (compL!=null&&key.compareTo(rt.key) < 0) {
 			return floorHelp(compL, key);
@@ -280,20 +274,20 @@ public class BST<K extends Comparable<K>, V> {
 	}
 
 	private Node ceilHelp(Node rt, K key) {
-		Node tempR = rt.right();
-		Node tempL = rt.left();
 		if (rt.key == key) {
 			return rt;
 		}
-		if (rt.key.compareTo(key) < 0) {
+		if (key.compareTo(rt.key) < 0) {
+			Node tempL = rt.left();
 			if (tempL.key.compareTo(key) >= 0) {
-				floorHelp(tempL, key);
+				return ceilHelp(tempL, key);
 			} else {
 				return rt;
 			}
 		}
 		if (rt.key.compareTo(key) > 0) {
-			floorHelp(tempR, key);
+			Node tempR = rt.right();
+			return ceilHelp(tempR, key);
 		}
 		return rt;
 	}
@@ -312,26 +306,34 @@ public class BST<K extends Comparable<K>, V> {
 		if(rt==null) {
 			return -1;
 		}
-		if(key.compareTo(rt.key)==0) {
-			return compVal;
-		}
-		Node tempR = rt.right();
+		
 		Node tempL = rt.left();
+		if(key.compareTo(rt.key)==0) {
+			if(tempL==null){
+				return 0;
+			}else{
+			return tempL.N;
+		}
+	}
+		
 		if(key.compareTo(rt.key)>0) {
+			Node tempR = rt.right();
 			if(tempR!=null&&tempL!=null) {	
 		int sum1 = tempL.N+1;
 		int sum2 = rankHelp(tempR, key, compVal);
 		if (sum2==-1) {
 			return -1;
 		}
-		return sum1+sum2+1;
+		return sum1+sum2;
 			}
 		}
 		else if(key.compareTo(rt.key)<0) {
 			int sum3 = rankHelp(tempL, key, compVal);
 			if(sum3==-1) {
 				return -1;
-			}
+			}else{
+			return sum3;
+		}
 		}
 		return -1;
 	}
