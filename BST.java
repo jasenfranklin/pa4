@@ -203,9 +203,13 @@ public class BST<K extends Comparable<K>, V> {
 	private K minHelp(Node rt) {
 		Node temp = rt.left();
 		if (temp != null) {
-			minHelp(temp);
+			return minHelp(temp);
 		}
+		System.out.println(rt.key);
+		if(temp==null) {
 		return rt.key;
+	}
+		return null;
 	}
 
 	/***
@@ -222,7 +226,7 @@ public class BST<K extends Comparable<K>, V> {
 	private K maxHelp(Node rt) {
 		Node temp = rt.right();
 		if (temp != null) {
-			maxHelp(temp);
+			return maxHelp(temp);
 		}
 		return rt.key;
 	}
@@ -240,20 +244,25 @@ public class BST<K extends Comparable<K>, V> {
 	}
 
 	private Node floorHelp(Node rt, K key) {
-		Node compL = rt.left();
-		Node compR = rt.right();
 		if (rt.key == key) {
 			return rt;
 		}
-		if (rt.key.compareTo(key) < 0) {
-			if (compR!=null && compR.key.compareTo(key) <= 0) {
-				floorHelp(compR, key);
-			} else {
-				return rt;
+		if (key.compareTo(rt.key) > 0) {
+			Node compR = rt.right();
+			if (compR!=null && key.compareTo(compR.key) >= 0) {
+				return floorHelp(compR, key);
+			} if(compR!=null) {
+				Node compL2 = compR.left();
+			if(compL2!=null) {
+			if(key.compareTo(compL2.key)<0){
+				return compL2;
+			}
+			}
 			}
 		}
-		if (compL!=null&&rt.key.compareTo(key) > 0) {
-			floorHelp(compL, key);
+		Node compL = rt.left();
+		if (compL!=null&&key.compareTo(rt.key) < 0) {
+			return floorHelp(compL, key);
 			}
 		return rt;
 	}
@@ -297,26 +306,31 @@ public class BST<K extends Comparable<K>, V> {
 		int retVal = rankHelp(root, key, 0);
 		return retVal;
 	}
-
+	
+	
 	private int rankHelp(Node rt, K key, int compVal){
-		if(rt==null){
+		if(rt==null) {
+			return -1;
+		}
+		if(key.compareTo(rt.key)==0) {
 			return compVal;
 		}
 		Node tempR = rt.right();
 		Node tempL = rt.left();
-		if(key.compareTo(rt.key)<0){
-			if(key.compareTo(tempL.key)<=0){
-				rankHelp( rt, key, compVal);
-			}
-			return compVal+rt.N;
+		if(key.compareTo(rt.key)>0) {
+			if(tempR!=null&&tempL!=null) {	
+		int sum1 = tempL.N+1;
+		int sum2 = rankHelp(tempR, key, compVal);
+		if (sum2==-1) {
+			return -1;
 		}
-		if(key.compareTo(rt.key)>0){
-			if(key.compareTo(tempR.key)>0){
-				rankHelp(tempR, key, compVal);
-			}else if(key.compareTo(tempR.key)<0){
-				if(key.compareTo(tempR.left().key)>0){
-					return tempR.left().N+compVal;
-				}
+		return sum1+sum2+1;
+			}
+		}
+		else if(key.compareTo(rt.key)<0) {
+			int sum3 = rankHelp(tempL, key, compVal);
+			if(sum3==-1) {
+				return -1;
 			}
 		}
 		return -1;
@@ -370,7 +384,7 @@ public class BST<K extends Comparable<K>, V> {
 		// setter for the left child
 		public void left(Node l) {
 			nodeCount++;
-			this.left = l;
+			this.left = l;;
 		}
 
 		// setter for the right child
