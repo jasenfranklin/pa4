@@ -162,7 +162,7 @@ public class BST<K extends Comparable<K>, V> {
 	}
 
 	private int depthHelp(Node rt, K key, int depthCount) {
-		if (key == null) {
+		if (rt == null) {
 			return -1;
 		}
 		if (key.compareTo(rt.key) == 0) {
@@ -204,8 +204,8 @@ public class BST<K extends Comparable<K>, V> {
 		if (temp != null) {
 			return minHelp(temp);
 		}
-		if(temp==null) {
-		return rt.key;
+		if (temp == null) {
+			return rt.key;
 		}
 		return null;
 	}
@@ -247,17 +247,16 @@ public class BST<K extends Comparable<K>, V> {
 		}
 		if (key.compareTo(rt.key) > 0) {
 			Node compR = rt.right();
-			if (compR!=null && key.compareTo(compR.key) >= 0) {
+			if (compR != null && key.compareTo(compR.key) >= 0) {
 				return floorHelp(compR, key);
-			}
-			else{
+			} else {
 				return rt;
 			}
-			}
+		}
 		Node compL = rt.left();
-		if (compL!=null&&key.compareTo(rt.key) < 0) {
+		if (compL != null && key.compareTo(rt.key) < 0) {
 			return floorHelp(compL, key);
-			}
+		}
 		return rt;
 	}
 
@@ -270,23 +269,33 @@ public class BST<K extends Comparable<K>, V> {
 		if (temp != null) {
 			return temp.key;
 		}
-		return null;
+		return root.key;
 	}
 
 	private Node ceilHelp(Node rt, K key) {
 		if (rt.key == key) {
 			return rt;
+		} else if (rt == null) {
+			return rt;
 		}
 		if (key.compareTo(rt.key) < 0) {
 			Node tempL = rt.left();
-			if (tempL.key.compareTo(key) >= 0) {
+			if (tempL != null) {
+				if(key.compareTo(tempL.key)>0&&tempL.right()==null) {
+					return rt;
+				}
 				return ceilHelp(tempL, key);
-			} else {
-				return rt;
 			}
 		}
-		if (rt.key.compareTo(key) > 0) {
+		if (key.compareTo(rt.key) > 0) {
 			Node tempR = rt.right();
+			if (tempR == null) {
+				return rt;
+			}if(key.compareTo(tempR.key)<0) {
+				if(tempR.left()!=null) {
+					ceilHelp(tempR.left(), key);
+				}
+			}
 			return ceilHelp(tempR, key);
 		}
 		return rt;
@@ -300,40 +309,47 @@ public class BST<K extends Comparable<K>, V> {
 		int retVal = rankHelp(root, key, 0);
 		return retVal;
 	}
-	
-	
-	private int rankHelp(Node rt, K key, int compVal){
-		if(rt==null) {
+
+	private int rankHelp(Node rt, K key, int compVal) {
+		if (rt == null) {
 			return -1;
 		}
-		
+
 		Node tempL = rt.left();
-		if(key.compareTo(rt.key)==0) {
-			if(tempL==null){
+		if (key.compareTo(rt.key) == 0) {
+			if (tempL == null) {
 				return 0;
-			}else{
-			return tempL.N;
-		}
-	}
-		
-		if(key.compareTo(rt.key)>0) {
-			Node tempR = rt.right();
-			if(tempR!=null&&tempL!=null) {	
-		int sum1 = tempL.N+1;
-		int sum2 = rankHelp(tempR, key, compVal);
-		if (sum2==-1) {
-			return -1;
-		}
-		return sum1+sum2;
+			} else {
+				return tempL.N;
 			}
 		}
-		else if(key.compareTo(rt.key)<0) {
-			int sum3 = rankHelp(tempL, key, compVal);
-			if(sum3==-1) {
+
+		if (key.compareTo(rt.key) > 0) {
+			Node tempR = rt.right();
+			if (tempR != null && tempL != null) {
+				int sum1 = tempL.N + 1;
+				int sum2 = rankHelp(tempR, key, compVal);
+				if (sum2 == -1) {
+					return -1;
+				}
+				return sum1 + sum2;
+			}else if(tempR!=null&&tempL==null) {
+				int sum1=1;
+				int sum2=rankHelp(tempR, key, compVal);
+				if(sum2==-1) {
+					return -1;
+				}
+				return sum1+sum2;
+			}else {
 				return -1;
-			}else{
-			return sum3;
-		}
+			}
+		} else if (key.compareTo(rt.key) < 0) {
+			int sum3 = rankHelp(tempL, key, compVal);
+			if (sum3 == -1) {
+				return -1;
+			} else {
+				return sum3;
+			}
 		}
 		return -1;
 	}
@@ -343,16 +359,40 @@ public class BST<K extends Comparable<K>, V> {
 	 * sense given the tree
 	 ***/
 	public K select(int rank) {
-		// to be implemented
-		return null;
+
+		return root.key;
 	}
 
 	/***
 	 * return the number of keys in [lo...hi]
 	 ***/
 	public int size(K lo, K hi) {
-		// to be implemented
-		return -1;
+		int temp = sizeHelp(lo, hi, root);
+		System.out.println(temp);
+		return temp;
+	}
+
+	private int sizeHelp(K lo, K hi, Node rt) {
+		if (rt == null) {
+			return 0;
+		}
+		// if lo is grerater / == than root-----if hi is less= than root
+		if (lo.compareTo(rt.key) <= 0 && hi.compareTo(rt.key) >= 0) {
+			Node tempR = rt.right();
+			Node tempL = rt.left();
+			int leftSide = sizeHelp(lo, hi, tempR);
+			int rightSide = sizeHelp(lo, hi, tempL);
+			return leftSide + rightSide + 1;
+			// if hi is less than / eql to root
+		} else if (lo.compareTo(rt.key) >= 0) {
+			Node tempR = rt.right();
+			return sizeHelp(lo, hi, tempR);
+		} else if (hi.compareTo(rt.key) <= 0) {
+			Node tempL = rt.left();
+			return sizeHelp(lo, hi, tempL);
+		} else {
+			return 0;
+		}
 	}
 
 	/* NODE CLASS */
@@ -386,7 +426,8 @@ public class BST<K extends Comparable<K>, V> {
 		// setter for the left child
 		public void left(Node l) {
 			nodeCount++;
-			this.left = l;;
+			this.left = l;
+			;
 		}
 
 		// setter for the right child
